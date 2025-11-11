@@ -1,5 +1,6 @@
--- CPSC 3300 Project Milestone 3 - To-Do Web Application
--- Target DBMS: SQL Server on cssql.seattleu.edu
+-- CPSC 3300 Project Milestone 3 
+-- To-Do list website
+-- Target DBMS: MySQL server on cssql.seattleu.edu
 
 use testdb;
 
@@ -61,9 +62,9 @@ CREATE TABLE Notes (
   FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
------------------------------
+-- ---------------------------
 -- Users sample data (10)
------------------------------
+-- ---------------------------
 INSERT INTO Users (username, email, password_hash) VALUES
 ('alice',   'alice@example.com',   'hash_alice'),
 ('bob',     'bob@example.com',     'hash_bob'),
@@ -76,9 +77,9 @@ INSERT INTO Users (username, email, password_hash) VALUES
 ('ivan',    'ivan@example.com',    'hash_ivan'),
 ('judy',    'judy@example.com',    'hash_judy');
 
------------------------------
+-- ---------------------------
 -- Category sample data (10)
------------------------------
+-- ---------------------------
 INSERT INTO Category (name, type) VALUES
 ('Personal','General'),
 ('School','Academic'),
@@ -91,9 +92,9 @@ INSERT INTO Category (name, type) VALUES
 ('Project','Professional'),
 ('Travel','Leisure');
 
------------------------------
+-- ---------------------------
 -- TodoLists sample data (10)
------------------------------
+-- ---------------------------
 INSERT INTO Todo_List (user_id, list_name) VALUES
 (1,'Alice - Personal'),
 (1,'Alice - School'),
@@ -107,9 +108,9 @@ INSERT INTO Todo_List (user_id, list_name) VALUES
 (8,'Helen - Fitness');
 
 
------------------------------
+-- ---------------------------
 -- Tasks sample data (10)
------------------------------
+-- ---------------------------
 INSERT INTO Tasks (category_id, user_id, todo_list_id, task_name, priority, due_date, complete) VALUES
 (6, 1, 1,  'Pay rent', 'High', '2025-11-01', 1),
 (1, 1, 1, 'Call mom', 'Low', '2025-11-03', 0),
@@ -128,9 +129,9 @@ INSERT INTO Tasks (category_id, user_id, todo_list_id, task_name, priority, due_
 (9, 5, 7, 'Investor pitch deck', 'High', '2025-11-18', 0),
 (3,  5, 7, 'Code review', 'High', '2025-11-12', 0);
 
------------------------------
+-- ---------------------------
 -- Notes sample data (10)
------------------------------
+-- ---------------------------
 INSERT INTO Notes (task_id, user_id, note_text) VALUES
 (1,1,'Paid via bank transfer'),
 (2,1,'Call after 7pm'),
@@ -187,15 +188,15 @@ WHERE user_id IN (
 -- lists with at least 3 HIGH-priority tasks.
 -- ----------------------------------------------
 SELECT
-    l.list_id,
-    l.list_name,
+    tl.todo_list_id,
+    tl.list_name,
     u.username,
     COUNT(t.task_id) AS high_priority_tasks
-FROM TodoLists l
-JOIN Users u ON l.user_id = u.user_id
-JOIN Tasks t ON l.list_id = t.list_id
+FROM Todo_List tl
+JOIN Users u ON tl.user_id = u.user_id
+JOIN Tasks t ON tl.todo_list_id = t.todo_list_id
 WHERE t.priority = 'High'
-GROUP BY l.list_id, l.list_name, u.username
+GROUP BY tl.todo_list_id, tl.list_name, u.username
 HAVING COUNT(t.task_id) >= 3;
 
 -- ----------------------------------------------
@@ -208,7 +209,8 @@ SELECT
     u.username,
     COUNT(t.task_id) AS total_tasks
 FROM Users u
-LEFT JOIN TodoLists l ON u.user_id = l.user_id
-LEFT JOIN Tasks t     ON l.list_id = t.list_id
+LEFT JOIN Todo_List tl ON u.user_id = tl.user_id
+LEFT JOIN Tasks t ON tl.todo_list_id = t.todo_list_id
 GROUP BY u.username
 ORDER BY total_tasks DESC;
+
